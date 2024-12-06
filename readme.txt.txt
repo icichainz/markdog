@@ -1,0 +1,1 @@
+MarkDog : Develop a lightweight, user-friendly markdown editor with real-time preview and easy export options.
