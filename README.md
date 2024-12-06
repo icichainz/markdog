@@ -15,7 +15,7 @@ MarkDog is a lightweight, user-friendly markdown editor that provides real-time 
 1. Ensure you have Go installed on your machine.
 2. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/markdog.git
+   git clone https://github.com/icichainz/markdog.git
    ```
 3. Navigate to the project directory:
    ```bash
