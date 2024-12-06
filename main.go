@@ -72,6 +72,7 @@ func readFile(file *multipart.FileHeader) (string, error) {
 func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "MarkDog - Markdown Editor",
+		
 	})
 
 	// Middleware
@@ -83,26 +84,38 @@ func main() {
 
 	// Convert markdown to PDF
 	api.Post("/convert", func(c *fiber.Ctx) error {
-		// Get the file from the request
-		file, err := c.FormFile("markdown")
-		if err != nil {
+		var input struct {
+			Markdown string `json:"markdown"`
+		}
+
+		if err := c.BodyParser(&input); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "No markdown file provided",
+				"error": "Invalid input",
 			})
 		}
 
-		// Read the markdown content
-		content, err := readFile(file)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to read markdown file",
+		html := markdown.ToHTML([]byte(input.Markdown), nil, nil)
+		return c.JSON(fiber.Map{
+			"html": string(html),
+			})
+	})
+
+	// Convert markdown to PDF
+	api.Post("/export-pdf", func(c *fiber.Ctx) error {
+		var input struct {
+			Markdown string `json:"markdown"`
+		}
+
+		if err := c.BodyParser(&input); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid input",
 			})
 		}
 
 		// Convert markdown to HTML
-		html := markdown.ToHTML([]byte(content), nil, nil)
+		html := markdown.ToHTML([]byte(input.Markdown), nil, nil)
 
-		// Create PDF configuration
+		// Create PDF generator
 		pdfg, err := wkhtmltopdf.NewPDFGenerator()
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -127,8 +140,9 @@ func main() {
 			})
 		}
 
-		// Add the page to the PDF generator
-		page := wkhtmltopdf.NewPageReader(&buf)
+		// Add HTML page to PDF generator
+		page := wkhtmltopdf.NewPageReader(bytes.NewReader(buf.Bytes()))
+		page.EnableLocalFileAccess.Set(true)
 		pdfg.AddPage(page)
 
 		// Generate PDF
@@ -141,7 +155,7 @@ func main() {
 
 		// Set response headers
 		c.Set("Content-Type", "application/pdf")
-		c.Set("Content-Disposition", "attachment; filename=converted.pdf")
+		c.Set("Content-Disposition", "attachment; filename=document.pdf")
 
 		return c.Send(pdfg.Bytes())
 	})
