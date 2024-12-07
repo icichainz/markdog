@@ -3,7 +3,7 @@ module markdog
 go 1.21
 
 require (
-	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.9.2
+	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.9.3
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/gomarkdown/markdown v0.0.0-20231115200524-a660076da3fd
 )
@@ -19,5 +19,5 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.50.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 )

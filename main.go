@@ -72,7 +72,6 @@ func readFile(file *multipart.FileHeader) (string, error) {
 func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "MarkDog - Markdown Editor",
-		
 	})
 
 	// Middleware
@@ -97,7 +96,7 @@ func main() {
 		html := markdown.ToHTML([]byte(input.Markdown), nil, nil)
 		return c.JSON(fiber.Map{
 			"html": string(html),
-			})
+		})
 	})
 
 	// Convert markdown to PDF
@@ -107,6 +106,7 @@ func main() {
 		}
 
 		if err := c.BodyParser(&input); err != nil {
+			log.Println("Error parsing body:", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "Invalid input",
 			})
@@ -118,6 +118,7 @@ func main() {
 		// Create PDF generator
 		pdfg, err := wkhtmltopdf.NewPDFGenerator()
 		if err != nil {
+			log.Println("Error creating PDF generator:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to create PDF generator",
 			})
@@ -126,8 +127,9 @@ func main() {
 		// Create a new template and parse the HTML
 		tmpl, err := template.New("pdf").Parse(htmlTemplate)
 		if err != nil {
+			log.Println("Error parsing template:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to parse template",
+				"error": err.Error(),
 			})
 		}
 
@@ -135,6 +137,7 @@ func main() {
 		var buf bytes.Buffer
 		err = tmpl.Execute(&buf, struct{ Content template.HTML }{Content: template.HTML(html)})
 		if err != nil {
+			log.Println("Error executing template:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to execute template",
 			})
@@ -148,6 +151,7 @@ func main() {
 		// Generate PDF
 		err = pdfg.Create()
 		if err != nil {
+			log.Println("Error generating PDF:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to generate PDF",
 			})

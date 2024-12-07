@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     const editor = document.getElementById('editor');
     const preview = document.getElementById('preview');
     const newBtn = document.getElementById('newBtn');
@@ -116,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ markdown }),
             });
 
-            if (!response.ok) throw new Error('Failed to generate PDF');
+            if (!response.ok) throw new Error('${response.status} ${response.statusText}');
 
             // Get the PDF blob from the response
             const pdfBlob = await response.blob();

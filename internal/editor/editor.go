@@ -2,7 +2,7 @@ package editor
 
 import (
 	"io/ioutil"
-	"os"
+	
 )
 
 // Editor represents the main editor functionality
