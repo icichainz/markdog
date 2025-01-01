@@ -1,0 +1,2 @@
+- Integrate docker file for the project
+- Correct the features implemented in the projects.

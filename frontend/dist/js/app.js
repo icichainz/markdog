@@ -53,7 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle file selection
     fileInput.addEventListener('change', async (event) => {
+
         const file = event.target.files[0];
+
         if (!file) return;
 
         try {
