@@ -1,19 +1,17 @@
 package main
 
 import (
-	"bytes"
 	"embed"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"path/filepath"
 
-	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gomarkdown/markdown"
+	
 )
 
 const htmlTemplate = `
@@ -70,6 +68,9 @@ func readFile(file *multipart.FileHeader) (string, error) {
 }
 
 func main() {
+	//Initialize the models.
+	models.Initialize();
+	defer models.Close();
 	app := fiber.New(fiber.Config{
 		AppName: "MarkDog - Markdown Editor",
 	})
@@ -97,71 +98,6 @@ func main() {
 		return c.JSON(fiber.Map{
 			"html": string(html),
 		})
-	})
-
-	// Convert markdown to PDF
-	api.Post("/export-pdf", func(c *fiber.Ctx) error {
-		var input struct {
-			Markdown string `json:"markdown"`
-		}
-
-		if err := c.BodyParser(&input); err != nil {
-			log.Println("Error parsing body:", err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid input",
-			})
-		}
-
-		// Convert markdown to HTML
-		html := markdown.ToHTML([]byte(input.Markdown), nil, nil)
-
-		// Create PDF generator
-		pdfg, err := wkhtmltopdf.NewPDFGenerator()
-		if err != nil {
-			log.Println("Error creating PDF generator:", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to create PDF generator",
-			})
-		}
-
-		// Create a new template and parse the HTML
-		tmpl, err := template.New("pdf").Parse(htmlTemplate)
-		if err != nil {
-			log.Println("Error parsing template:", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": err.Error(),
-			})
-		}
-
-		// Execute the template with the HTML content
-		var buf bytes.Buffer
-		err = tmpl.Execute(&buf, struct{ Content template.HTML }{Content: template.HTML(html)})
-		if err != nil {
-			log.Println("Error executing template:", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to execute template",
-			})
-		}
-
-		// Add HTML page to PDF generator
-		page := wkhtmltopdf.NewPageReader(bytes.NewReader(buf.Bytes()))
-		page.EnableLocalFileAccess.Set(true)
-		pdfg.AddPage(page)
-
-		// Generate PDF
-		err = pdfg.Create()
-		if err != nil {
-			log.Println("Error generating PDF:", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to generate PDF",
-			})
-		}
-
-		// Set response headers
-		c.Set("Content-Type", "application/pdf")
-		c.Set("Content-Disposition", "attachment; filename=document.pdf")
-
-		return c.Send(pdfg.Bytes())
 	})
 
 	// Handle file upload
@@ -222,5 +158,3 @@ func main() {
 	// Start server
 	log.Fatal(app.Listen(":3050"))
 }
-
-

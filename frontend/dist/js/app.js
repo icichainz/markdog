@@ -108,32 +108,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Export PDF
-    exportPdfBtn.addEventListener('click', async () => {
-        const markdown = editor.value;
-        try {
-            const response = await fetch('http://localhost:3050/api/export-pdf', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ markdown }),
-            });
+    exportPdfBtn.addEventListener('click', () => {
+        const element = preview;
+        const options = {
+            margin: 0.2,
+            filename: 'document.pdf',
+            image: { type: 'jpec', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: {
+                unit: 'in',
+                format: 'letter',
+                orientation: 'portrait',
+            }
+        };
 
-            if (!response.ok) throw new Error('${response.status} ${response.statusText}');
-
-            // Get the PDF blob from the response
-            const pdfBlob = await response.blob();
-            
-            // Create a download link
-            const url = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'document.pdf';
-            a.click();
-            URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF. Please try again.');
-        }
+        html2pdf().set(options).from(element).save();
     });
+
+    // Export DOCX
+    exportDocxBtn.addEventListener('click', async () => {
+        const { Document, Packer, Paragraph } = docx;
+
+        const content = preview.innerHTML; // Get the HTML content from preview
+
+        // Convert HTML to plain text or handle it for Word compatibility
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content;
+        const textContent = tempDiv.textContent || tempDiv.innerText || '';
+
+        // Create a Word document
+        const doc = new Document({
+            sections: [
+                {
+                    properties: {},
+                    children: [
+                        new Paragraph({
+                            text: textContent,
+                            spacing: { after: 200 },
+                        }),
+                    ],
+                },
+            ],
+        });
+
+        // Generate the .docx file
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+
+        // Trigger download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'document.docx';
+        a.click();
+
+        URL.revokeObjectURL(url);
+    });
+
+
 });
