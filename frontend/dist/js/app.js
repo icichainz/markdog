@@ -8,12 +8,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveBtn = document.getElementById('saveBtn');
     const exportHtmlBtn = document.getElementById('exportHtmlBtn');
     const exportPdfBtn = document.getElementById('exportPdfBtn');
+    const exportDocxBtn = document.getElementById('exportDocxBtn');
+
+    const currentDocumentKey = "current_doc";
+    
 
     let debounceTimer;
+   
 
+    function onLoad(){
+        if (localStorage.getItem(currentDocumentKey)) {
+            editor.value = localStorage.getItem(currentDocumentKey) ;
+        }
+        
+        updatePreview();
+
+    }
+    function addToStorage(value) {
+        localStorage.setItem(currentDocumentKey,value)
+
+    }
+
+    function clearStorage(){
+        localStorage.removeItem(currentDocumentKey);
+    }
     // Update preview with debounce
     const updatePreview = async () => {
         const markdown = editor.value;
+         addToStorage(markdown) ;
+
+         console.log('the data : '+localStorage.getItem(currentDocumentKey));
+        
         try {
             const response = await fetch('http://localhost:3050/api/convert', {
                 method: 'POST',
@@ -44,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
             editor.value = '';
             preview.innerHTML = '';
         }
+
+        clearStorage();
     });
 
     // Handle file upload button click
@@ -164,5 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         URL.revokeObjectURL(url);
     });
 
+    onLoad();
 
 });

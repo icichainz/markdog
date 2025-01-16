@@ -1,36 +1,57 @@
 package main
 
 import (
-	"database/sql"
 	"log"
+	"time"
 
-	_ "modernc.org/sqlite" // Pure Go SQLite driver
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite" // SQLite driver
 )
 
 // DB is the global database connection
-var DB *sql.DB
+var DB *gorm.DB
+
+// Document represents the document model
+type Document struct {
+	ID      uint   `gorm:"primaryKey"`
+	Title   string `gorm:"not null"`
+	Content string `gorm:"type:text"`
+	UserID  uint   `gorm:"not null"` // Foreign key for User
+}
+
+// User model
+type User struct {
+	ID        uint       `gorm:"primaryKey"`
+	Username  string     `gorm:"not null;unique"`           // Ensure username is unique
+	LastLogin time.Time  `gorm:"default:CURRENT_TIMESTAMP"` // Last login time
+	IsActive  bool       `gorm:"default:true"`              // Is active flag
+	Documents []Document `gorm:"foreignKey:UserID"`         // One-to-many relationship
+}
+
 
 // Initialize initializes the SQLite database and sets up the required tables
-func Initialize() {
+func DBInitialize() error {
 	var err error
-	DB, err = sql.Open("sqlite", "app.db")
+	DB, err = gorm.Open("sqlite3", "app.db")
 	if err != nil {
-		log.Fatalf("Failed to open database: %v", err)
+		return err // Return the error instead of logging and terminating
 	}
 
-	// Create table if it doesn't exist
-	_, err = DB.Exec(`CREATE TABLE IF NOT EXISTS documents (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		title TEXT,
-		content TEXT
-	)`)
-	if err != nil {
-		log.Fatalf("Failed to create table: %v", err)
+	// Migrate the schema, this will create the documents table if it doesn't exist
+	if err := DB.AutoMigrate(&Document{}).Error; err != nil {
+		return err
 	}
+
+	if err := DB.AutoMigrate(&User{}).Error; err != nil {
+		return err
+	}
+
+	log.Println("Database initialized successfully")
+	return nil
 }
 
 // Close closes the database connection
-func Close() {
+func DBClose() {
 	if DB != nil {
 		if err := DB.Close(); err != nil {
 			log.Printf("Failed to close database: %v", err)

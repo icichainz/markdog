@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gomarkdown/markdown"
 	
+	
 )
 
 const htmlTemplate = `
@@ -69,8 +70,15 @@ func readFile(file *multipart.FileHeader) (string, error) {
 
 func main() {
 	//Initialize the models.
-	models.Initialize();
-	defer models.Close();
+	if err:= DBInitialize(); err != nil {
+		log.Fatalf("Failed to initialize the database: %v",err)
+	}
+	defer DBClose();
+
+
+	
+	
+
 	app := fiber.New(fiber.Config{
 		AppName: "MarkDog - Markdown Editor",
 	})
@@ -93,6 +101,10 @@ func main() {
 				"error": "Invalid input",
 			})
 		}
+		
+		
+
+		
 
 		html := markdown.ToHTML([]byte(input.Markdown), nil, nil)
 		return c.JSON(fiber.Map{
