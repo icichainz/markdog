@@ -2,34 +2,49 @@
 
 ## Implemented Features
 
-1. **Markdown to HTML Conversion**
+1. **Real-time Markdown Preview**
    - **Achievement Level**: Completed
-   - **Details**: Converts Markdown text to HTML using the `gomarkdown/markdown` package. Available via `/convert` API route.
+   - **Details**: Live preview with debounced updates (300ms) for better performance
 
-2. **PDF Export**
+2. **Document Management**
    - **Achievement Level**: Completed
-   - **Details**: Converts HTML to PDF using the `wkhtmltopdf` package. Available via `/export-pdf` API route.
+   - **Details**: 
+     - New document creation
+     - Local storage auto-save
+     - File upload support (.md files)
+     - Save documents as markdown files
 
-3. **Web Server Setup**
+3. **Export Options**
    - **Achievement Level**: Completed
-   - **Details**: Built using the Fiber web framework, with middleware for logging and CORS.
+   - **Details**:
+     - HTML export
+     - PDF export with customizable options
+     - DOCX export (plain text conversion)
 
-4. **Frontend Integration**
+4. **Editor Features**
    - **Achievement Level**: Completed
-   - **Details**: Embeds frontend files using Go's `embed` package, providing a web-based user interface.
+   - **Details**:
+     - Synchronized scrolling with toggle option
+     - Debounced scroll sync for smooth performance
+     - Persistent content through local storage
+     - Clean and responsive interface
 
-5. **File Upload Handling**
+5. **Backend Integration**
    - **Achievement Level**: Completed
-   - **Details**: Supports file uploads and reads file content via the `/upload` API route.
+   - **Details**:
+     - RESTful API endpoints
+     - Markdown to HTML conversion
+     - File upload handling
+     - Static file serving
 
-6. **Serving Static Files**
-   - **Achievement Level**: Completed
-   - **Details**: Serves static files from the embedded `frontend/dist` directory with appropriate content types.
+## Technical Implementation
 
-7. **Server Configuration**
-   - **Achievement Level**: Completed
-   - **Details**: The server is configured to listen on port 3050.
+- Built with vanilla JavaScript for frontend
+- Uses Golang backend with Fiber framework
+- Implements debouncing for performance optimization
+- Local storage for persistence
+- Event-driven architecture for real-time updates
 
 ## Summary
 
-The MarkDog project successfully implements a markdown editor with real-time preview, PDF export, and a web-based interface. All core features have been completed and are functioning as intended.
+MarkDog successfully implements a feature-rich markdown editor with real-time preview, multiple export options, and smooth user experience features like scroll synchronization and auto-save functionality. All core features are fully functional and tested.

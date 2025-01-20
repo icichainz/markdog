@@ -14,9 +14,10 @@ var DB *gorm.DB
 // Document represents the document model
 type Document struct {
 	ID      uint   `gorm:"primaryKey"`
-	Title   string `gorm:"not null"`
+	Title   string `gorm:"null"`
 	Content string `gorm:"type:text"`
-	UserID  uint   `gorm:"not null"` // Foreign key for User
+	UserID  uint   `gorm:"not null"` 
+	HashedContent string `gorm:"not null"`
 }
 
 // User model

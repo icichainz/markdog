@@ -1,2 +1,3 @@
 - Integrate docker file for the project [Done]
 - Correct the features implemented in the projects. [Done]
+- Implement a scroll sync. [To be done]

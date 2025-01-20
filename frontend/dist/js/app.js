@@ -9,12 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportHtmlBtn = document.getElementById('exportHtmlBtn');
     const exportPdfBtn = document.getElementById('exportPdfBtn');
     const exportDocxBtn = document.getElementById('exportDocxBtn');
+    const scrollSyncBtnToggle = document.getElementById('scrollSyncBtnToggle');
+    const scrollSyncToggleEl = document.getElementById('scrollSyncBtn');
 
+    let scrollSyncToggleStatus = false;
     const currentDocumentKey = "current_doc";
     
 
     let debounceTimer;
    
+    function toggleScrollSync() {
+        scrollSyncToggleStatus = !scrollSyncToggleStatus;
+        updateScrollListeners();
+    }
+
+    scrollSyncBtnToggle.addEventListener('click', () => {
+        toggleScrollSync();
+        scrollSyncToggleEl.innerText = scrollSyncToggleStatus ? 'ON' : 'OFF';
+    });
 
     function onLoad(){
         if (localStorage.getItem(currentDocumentKey)) {
@@ -190,6 +202,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
         URL.revokeObjectURL(url);
     });
+
+    let isScrolling = false;
+    let scrollDebounceTimer;
+    
+    function debounce(func, wait) {
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(scrollDebounceTimer);
+                func(...args);
+            };
+            clearTimeout(scrollDebounceTimer);
+            scrollDebounceTimer = setTimeout(later, wait);
+        };
+    }
+    
+    function syncScroll(source, target) {
+        if (!scrollSyncToggleStatus || isScrolling) return;
+        
+        isScrolling = true;
+        const sourceScrollPercent = source.scrollTop / (source.scrollHeight - source.clientHeight);
+        const targetScrollPosition = sourceScrollPercent * (target.scrollHeight - target.clientHeight);
+        target.scrollTop = targetScrollPosition;
+        
+        setTimeout(() => {
+            isScrolling = false;
+        }, 50);
+    }
+
+    const debouncedSync = debounce((source, target) => syncScroll(source, target), 16);
+
+    // Add/remove scroll listeners based on toggle status
+    function updateScrollListeners() {
+        if (scrollSyncToggleStatus) {
+            editor.addEventListener('scroll', () => debouncedSync(editor, preview), { passive: true });
+            preview.addEventListener('scroll', () => debouncedSync(preview, editor), { passive: true });
+        } else {
+            editor.removeEventListener('scroll', () => debouncedSync(editor, preview));
+            preview.removeEventListener('scroll', () => debouncedSync(preview, editor));
+        }
+    }
+
+    // Initialize scroll sync state
+    updateScrollListeners();
 
     onLoad();
 
