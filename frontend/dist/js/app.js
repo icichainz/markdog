@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
          console.log('the data : '+localStorage.getItem(currentDocumentKey));
         
         try {
-            const response = await fetch('http://localhost:3050/api/convert', {
+            const response = await fetch('/api/convert', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('file', file);
 
             // Upload file
-            const response = await fetch('http://localhost:3050/api/upload', {
+            const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData,
             });
