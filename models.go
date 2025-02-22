@@ -18,6 +18,8 @@ type Document struct {
 	Content string `gorm:"type:text"`
 	UserID  uint   `gorm:"not null"` 
 	HashedContent string `gorm:"not null"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 // User model
@@ -26,7 +28,9 @@ type User struct {
 	Username  string     `gorm:"not null;unique"`           // Ensure username is unique
 	LastLogin time.Time  `gorm:"default:CURRENT_TIMESTAMP"` // Last login time
 	IsActive  bool       `gorm:"default:true"`              // Is active flag
-	Documents []Document `gorm:"foreignKey:UserID"`         // One-to-many relationship
+	Documents []Document `gorm:"foreignKey:UserID"` 
+	CreatedAt      time.Time 
+	UpdatedAt      time.Time        
 }
 
 

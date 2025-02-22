@@ -11,15 +11,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportDocxBtn = document.getElementById('exportDocxBtn');
     const scrollSyncBtnToggle = document.getElementById('scrollSyncBtnToggle');
     const scrollSyncToggleEl = document.getElementById('scrollSyncBtn');
-
-    let scrollSyncToggleStatus = false;
+    
+    let scrollSyncToggleStatus ;
     const currentDocumentKey = "current_doc";
+    const syncScrollKey = "scroll_sync";
+    const toggleColor = '#2ecc71';
+    const previousColor = '#3498db';
     
 
     let debounceTimer;
    
     function toggleScrollSync() {
         scrollSyncToggleStatus = !scrollSyncToggleStatus;
+        
+        localStorage.setItem(syncScrollKey, scrollSyncToggleStatus);
+        
+        if (scrollSyncToggleStatus) {
+            scrollSyncBtnToggle.style.backgroundColor = toggleColor;
+        }
+        if (!scrollSyncToggleStatus) {
+            scrollSyncBtnToggle.style.backgroundColor = previousColor;
+        }
         updateScrollListeners();
     }
 
@@ -33,15 +45,23 @@ document.addEventListener('DOMContentLoaded', () => {
             editor.value = localStorage.getItem(currentDocumentKey) ;
         }
         
+        const savedScrollState = localStorage.getItem(syncScrollKey);
+        scrollSyncToggleStatus = savedScrollState === 'true';
+
+
+        scrollSyncBtnToggle.style.backgroundColor = scrollSyncToggleStatus ? toggleColor : previousColor;
+        scrollSyncToggleEl.innerText = scrollSyncToggleStatus ? 'ON' : 'OFF';
+        
         updatePreview();
 
     }
-    function addToStorage(value) {
-        localStorage.setItem(currentDocumentKey,value)
 
+    function addToStorage(value,key=currentDocumentKey) {
+        localStorage.setItem(currentDocumentKey,value)
+        
     }
 
-    function clearStorage(){
+    function clearStorage(key=currentDocumentKey) {
         localStorage.removeItem(currentDocumentKey);
     }
     // Update preview with debounce
@@ -52,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
          console.log('the data : '+localStorage.getItem(currentDocumentKey));
         
         try {
-            const response = await fetch('http://localhost:3050/api/convert', {
+            const response = await fetch('/api/convert', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -103,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('file', file);
 
             // Upload file
-            const response = await fetch('http://localhost:3050/api/upload', {
+            const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData,
             });
