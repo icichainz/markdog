@@ -2,4 +2,5 @@
 - Correct the features implemented in the projects. [Done]
 - Implement a scroll sync. [Done]
 - Implement document modification history. [To Done]
+- Add lock for edit. [To be done]
 
