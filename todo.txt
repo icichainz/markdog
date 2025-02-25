@@ -3,4 +3,5 @@
 - Implement a scroll sync. [Done]
 - Implement document modification history. [To Done]
 - Add lock for edit. [To be done]
-
+- Implement add line number [To be done].
+- Implement pair editing  or many to many editing [To be done]
