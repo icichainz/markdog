@@ -8,8 +8,6 @@ import (
 
 
 
-
-
 type Controller struct{
 }
 
@@ -56,3 +54,6 @@ func (c *Controller) HandleFileUpload(ctx *fiber.Ctx) error {
 	})
 }
 
+//get a document by it uid
+// get all documents filtered by user id
+//create document

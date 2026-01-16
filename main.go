@@ -14,31 +14,30 @@ import (
 //go:embed frontend/dist/*
 var frontendFiles embed.FS
 
-
-
 func main() {
-    if err := Application.DBInitialize(); err != nil {
-        log.Fatalf("Failed to initialize the database: %v", err)
-    }
-    defer Application.DBClose()
+	if err := Application.DBInitialize(); err != nil {
+		log.Fatalf("Failed to initialize the database: %v", err)
+	}
+	defer Application.DBClose()
 
-    app := fiber.New(fiber.Config{
-        AppName: "MarkDog - Markdown Editor",
-    })
+	app := fiber.New(fiber.Config{
+		AppName: "MarkDog - Markdown Editor",
+	})
 
-    app.Server().ReadTimeout= 60 * time.Second 
-    app.Server().WriteTimeout= 60 * time.Second 
+	const timeOut = 120 * time.Second
 
-    // Middleware
-    app.Use(logger.New())
-    app.Use(cors.New())
+	app.Server().ReadTimeout = timeOut
+	app.Server().WriteTimeout = timeOut
 
+	// Middleware
+	app.Use(logger.New())
+	app.Use(cors.New())
 
-    // Setup routes
-    Application.SetupRoutes(app)
-    // Setup static routes
-    Application.SetupStaticRoute(app, frontendFiles)
-    
-    // Start server
-    log.Fatal(app.Listen(":3050"))
+	// Setup routes
+	Application.SetupRoutes(app)
+	// Setup static routes
+	Application.SetupStaticRoute(app, frontendFiles)
+
+	// Start server
+	log.Fatal(app.Listen(":3050"))
 }

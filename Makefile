@@ -13,3 +13,6 @@ build-linux:
 
 build-debian:
 	go build -ldflags="-s -w" -o markdog.deb
+
+run:
+	go run main.go
